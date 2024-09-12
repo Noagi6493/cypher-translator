@@ -16,12 +16,35 @@ const reverseMapping = Object.fromEntries(
 
 function encryptText() {
     const input = document.getElementById('inputText').value.toUpperCase();
+    // Encrypt each character and concatenate
     const encrypted = input.split('').map(char => mapping[char] || char).join('');
     document.getElementById('outputText').value = encrypted;
 }
 
 function decryptText() {
     const input = document.getElementById('inputText').value.toUpperCase();
-    const decrypted = input.match(/.{1,2}/g).map(pair => reverseMapping[pair] || pair).join('');
-    document.getElementById('outputText').value = decrypted;
+    
+    // Normalize input by removing spaces and keeping track of their positions
+    const parts = input.split(' ');
+    const normalizedInput = parts.join('');
+    
+    if (normalizedInput.length % 2 !== 0) {
+        alert('Invalid input length for decryption. Ensure the input is a continuous encrypted string.');
+        return;
+    }
+    
+    // Split the normalized input into chunks of 2 characters
+    const decryptedParts = normalizedInput.match(/.{2}/g).map(pair => reverseMapping[pair] || pair);
+    
+    // Reinsert spaces at the original positions
+    let decryptedText = '';
+    let index = 0;
+    for (const part of parts) {
+        decryptedText += decryptedParts.slice(index, index + part.length / 2).join('');
+        index += part.length / 2;
+        decryptedText += ' '; // Reinsert space
+    }
+    
+    // Trim the trailing space if any
+    document.getElementById('outputText').value = decryptedText.trim();
 }
